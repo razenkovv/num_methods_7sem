@@ -17,6 +17,15 @@ class Matrix:
     def dimension(self):
         return self._matrix.shape
 
+    def mult(self, rgt):
+        return Matrix(self.__data__() @ rgt.__data__())
+
+    def __sub__(self, rgt):
+        return Matrix(self.__data__() - rgt.__data__())
+
+    def norm(self):
+        return np.linalg.norm(self.__data__())
+
     def gauss(self, col):
         _lft = Matrix(np.copy(self.__data__()))
         _rgt = Matrix(np.copy(col.__data__()))
