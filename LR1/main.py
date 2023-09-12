@@ -4,15 +4,18 @@ from matrix import Matrix
 
 rng = np.random.default_rng(seed=1)
 
-n = 3
-low = -10
-high = 10
+n = 5
+low = -1000
+high = 1000
 
-#lft = Matrix(np.array([[1, 1, 1], [0.0, 0, 1], [0.0, 0, 5]]))
-lft = Matrix(rng.uniform(size=(n, n), low=low, high=high))
-rgt = Matrix(rng.uniform(size=(n, 1), low=low, high=high))
+_lft = rng.uniform(size=(n, n), low=low, high=high)
+_rgt = np.ravel(rng.uniform(size=(1, n), low=low, high=high))
+
+lft = Matrix(_lft)
+rgt = Matrix(_rgt)
 
 lft.print()
 rgt.print()
-print('----------')
-lft.gauss(rgt)
+res = lft.gauss(rgt)
+print('\nGauss result       : ', res)
+print('Numpy_solver result: ', np.linalg.solve(_lft, _rgt))
