@@ -1,25 +1,28 @@
 import numpy as np
 
 from matrix import Matrix
+from methods import Solver
 
-rng = np.random.default_rng(seed=1)
+rng = np.random.default_rng(seed=2)
 
-n = 10000
-low = -100000000
-high = 100000000
+n = 3
+low = -10
+high = 10
 
 _lft = rng.uniform(size=(n, n), low=low, high=high)
 _rgt = np.ravel(rng.uniform(size=(1, n), low=low, high=high))
+
+_lft += np.identity(n) * rng.choice([high, low]) * n  # for diagonal dominance
 
 lft = Matrix(_lft)
 rgt = Matrix(_rgt)
 
 # lft.print()
 # rgt.print()
-gauss_result = lft.gauss(rgt)
-numpy_solver_result = np.linalg.solve(_lft, _rgt)
-print('\nGauss result       : ', gauss_result)
-print('Numpy_solver result: ', numpy_solver_result)
-print('Error: ', Matrix(gauss_result - np.linalg.solve(_lft, _rgt)).norm())
-print('Residual of Gauss: ', (rgt - lft.mult(Matrix(gauss_result))).norm())
-print('Residual of Numpy_solver: ', np.linalg.norm(_rgt - _lft @ numpy_solver_result))
+
+solver = Solver()
+
+solver.scipy_routine(lft, rgt)
+#solver.gauss_routine(lft, rgt)
+solver.jacobi_routine(lft, rgt)
+solver.zeidel_routine(lft, rgt)
