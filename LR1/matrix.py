@@ -81,6 +81,7 @@ class Matrix:
 
         counter = 0
         while delta2 > residual:
+            # print(f'{delta2}')
             res_new = (rgt - np.sum(lft * res, axis=1) + diag * res) / diag
             # delta1 = Matrix(res_new - res).norm()  # change between current and previous iteration
             delta2 = (_rgt - _lft.mult(Matrix(res_new))).norm()  # residual
@@ -106,6 +107,7 @@ class Matrix:
 
         counter = 0
         while delta2 > residual:
+            # print(f'{delta2}')
             for i in range(0, len(res)):
                 res_new[i] = (rgt[i] - np.sum(lft[i, :i] * res_new[:i]) - np.sum(lft[i, i+1:] * res[i+1:])) / lft[i, i]
             # delta1 = Matrix(res_new - res).norm()  # change between current and previous iteration
