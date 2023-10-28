@@ -7,6 +7,7 @@ import os
 
 from tdma import tdma
 
+
 L_x = np.sqrt(2)
 L_y = 1
 h_x = 0.01

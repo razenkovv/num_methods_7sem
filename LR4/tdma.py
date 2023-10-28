@@ -1,6 +1,5 @@
 import numpy as np
 
-
 def tdma(left, right):
     """
     TriDiagonal Matrix Algorithm\n
