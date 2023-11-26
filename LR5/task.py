@@ -7,8 +7,8 @@ from scipy.sparse.linalg import spsolve
 l = 0.0
 r = 1.0
 
-Nx = int(1000)
-Ny = int(1000)
+Nx = int(100)
+Ny = int(100)
 
 hx = (r - l) / Nx
 hy = (r - l) / Ny
@@ -20,33 +20,33 @@ steps_per_save = 1000
 
 def f(x, y):
     #return 0*x + 0*y
-    return -4 + 0*x + 0*y
-    #return -8*x + 0*y
+    #return -4
+    return -8*x
 
 def phi_L(y):
     #return -1
-    return 0
-    #return -y**2
+    #return 0
+    return -y**2
 
 def phi_R(y):
     #return 1
-    return 2
-    #return 3 + y**2
+    #return 2
+    return 3 + y**2
 
 def phi_B(x):
     #return -1
-    return 0
-    #return -x**3
+    #return 0
+    return -x**3
 
 def phi_T(x):
     #return 1
-    return 2
-    #return x**3 + 2*x
+    #return 2
+    return x**3 + 2*x
 
 def exact(x, y, delta):
     #return x + y
-    return x**2 + y**2 - delta
-    #return x**3 + x * y**2 - delta
+    #return x**2 + y**2 - delta
+    return x**3 + x * y**2 - delta
 
 def to2D(n):
     return int(n / Nx), int(n % Nx)
@@ -65,17 +65,18 @@ def solve_scipy(eps=1e-3):
 def solve(eps=1e-3):
     print("matrix creation start")
     matrix, right_part = create_matrix()
+    # matrix[0, 0] += 1
     # matrix += eye(Nx*Ny, format='csr')
     print("matrix creation end")
 
     rng = np.random.default_rng()
     # u = np.ones(Nx * Ny)
     u = rng.random(Nx * Ny)
-    grid_x, grid_y = np.meshgrid(xaxis, yaxis)
+    # grid_x, grid_y = np.meshgrid(xaxis, yaxis)
     curr_eps = 1
     m = int(0)
     while curr_eps > eps:
-        rk = matrix @ u - f(grid_x, grid_y).reshape(Nx * Ny)
+        rk = matrix @ u - right_part
         curr_eps = np.sqrt(rk @ rk)
         if m % steps_per_save == 0:
             print(f"step: {m}, curr_eps = {curr_eps}.")
