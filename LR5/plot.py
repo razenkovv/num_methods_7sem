@@ -93,7 +93,7 @@ def plot_relative_error(cmap, savepath, delta, calc_sol, title):
     x_tick_n = 5
     y_tick_n = 5
     exact = t.exact(xv, yv, delta)
-    sns.heatmap(np.abs((exact - calc_sol) / exact), ax=ax, cbar=True, cbar_ax=cax, cmap=cmap)  # , vmin=0.0, vmax=2.0)
+    sns.heatmap(np.abs((exact - calc_sol) / exact), ax=ax, cbar=True, cbar_ax=cax, cmap=cmap)  # , vmin=2.5, vmax=3.5)
     ax.set_xticks(np.linspace(0, t.Nx, x_tick_n))
     ax.set_xticklabels(f'{c:.1f}' for c in np.linspace(t.l, t.r, x_tick_n))
     ax.xaxis.tick_top()
