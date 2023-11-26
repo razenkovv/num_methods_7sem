@@ -1,13 +1,14 @@
 import numpy as np
-from scipy.sparse import csr_array
+from scipy.sparse import csr_array, eye
+from scipy.sparse.linalg import spsolve
 
 # -1 * laplasian(u) = f
 
 l = 0.0
 r = 1.0
 
-Nx = int(100)
-Ny = int(100)
+Nx = int(1000)
+Ny = int(1000)
 
 hx = (r - l) / Nx
 hy = (r - l) / Ny
@@ -18,22 +19,34 @@ yaxis = np.linspace(l, r, Ny)
 steps_per_save = 1000
 
 def f(x, y):
-    return 4 + 128 * np.cos(8 * x + 3 * y)
+    #return 0*x + 0*y
+    return -4 + 0*x + 0*y
+    #return -8*x + 0*y
 
 def phi_L(y):
-    return 8 * np.sin(3 * y)
+    #return -1
+    return 0
+    #return -y**2
 
 def phi_R(y):
-    return -2 - 8 * np.sin(8 + 3 * y)
+    #return 1
+    return 2
+    #return 3 + y**2
 
 def phi_B(x):
-    return 3 * np.sin(8 * x)
+    #return -1
+    return 0
+    #return -x**3
 
 def phi_T(x):
-    return 3 - 3 * np.sin(8 * x + 3)
+    #return 1
+    return 2
+    #return x**3 + 2*x
 
 def exact(x, y, delta):
-    return -x**2 + y**3 + np.cos(8*x + 3*y) - delta
+    #return x + y
+    return x**2 + y**2 - delta
+    #return x**3 + x * y**2 - delta
 
 def to2D(n):
     return int(n / Nx), int(n % Nx)
@@ -41,12 +54,23 @@ def to2D(n):
 def to1D(i, j):
     return int(Nx * i + j)
 
-def solve(eps=1e-3):
+def solve_scipy(eps=1e-3):
     print("matrix creation start")
     matrix, right_part = create_matrix()
     print("matrix creation end")
+    u = spsolve(matrix, right_part)
+    np.savetxt(f"data//1.csv", u.reshape(Ny, Nx), delimiter=",")
+    return u.reshape(Ny, Nx)
 
-    u = np.zeros(Nx * Ny)
+def solve(eps=1e-3):
+    print("matrix creation start")
+    matrix, right_part = create_matrix()
+    # matrix += eye(Nx*Ny, format='csr')
+    print("matrix creation end")
+
+    rng = np.random.default_rng()
+    # u = np.ones(Nx * Ny)
+    u = rng.random(Nx * Ny)
     grid_x, grid_y = np.meshgrid(xaxis, yaxis)
     curr_eps = 1
     m = int(0)
@@ -77,29 +101,29 @@ def create_matrix():
     counter = 0
 
     n = to1D(0, 0)
-    #print("n: ", n)
+    # print("n: ", n)
     i_ind[counter:counter+3] = np.repeat(n, 3)
     j_ind[counter:counter+3] = np.array([n, to1D(0, 1), to1D(1, 0)])
-    data[counter:counter+3] = np.array([2/hx**2+2/hy**2, -1/hx**2, -1/hy**2])
+    data[counter:counter+3] = np.array([1/hx**2+1/hy**2, -1/hx**2, -1/hy**2])
     # data[counter:counter+3] = np.array([4, -1, -1])  # change
     right_part[0] = f(xaxis[0], yaxis[0]) + phi_L(yaxis[0]) / hx + phi_B(xaxis[0]) / hy
     counter += 3
 
     for i in range(1, Nx - 1):
         n = to1D(0, i)
-       # print("n: ", n)
+        # print("n: ", n)
         i_ind[counter:counter+4] = np.repeat(n, 4)
         j_ind[counter:counter+4] = np.array([to1D(0, i - 1), n, to1D(0, i + 1), to1D(1, i)])
-        data[counter:counter+4] = np.array([-1/hx**2, 2/hx**2+2/hy**2, -1/hx**2, -1/hy**2])
+        data[counter:counter+4] = np.array([-1/hx**2, 2/hx**2+1/hy**2, -1/hx**2, -1/hy**2])
         # data[counter:counter+4] = np.array([-1, 4, -1, -1])  # change
         right_part[i] = f(xaxis[i], yaxis[0]) + phi_B(xaxis[i]) / hy
         counter += 4
 
     n = to1D(0, Nx - 1)
-    #print("n: ", n)
+    # print("n: ", n)
     i_ind[counter:counter+3] = np.repeat(n, 3)
     j_ind[counter:counter+3] = np.array([to1D(0, Nx-2), n, to1D(1, Nx-1)])
-    data[counter:counter+3] = np.array([-1/hx**2, 2/hx**2+2/hy**2, -1/hy**2])
+    data[counter:counter+3] = np.array([-1/hx**2, 1/hx**2+1/hy**2, -1/hy**2])
     # data[counter:counter+3] = np.array([-1, 4, -1])  # change
     right_part[Nx-1] = f(xaxis[Nx-1], yaxis[0]) + phi_B(xaxis[Nx-1]) / hy + phi_R(yaxis[0]) / hx
     counter += 3
@@ -113,7 +137,7 @@ def create_matrix():
             if j == 0:
                 i_ind[counter:counter+4] = np.repeat(n, 4)
                 j_ind[counter:counter+4] = np.array([to1D(i-1, j), n, to1D(i, j+1), to1D(i+1, j)])
-                data[counter:counter+4] = np.array([-1/hy**2, 2/hx**2+2/hy**2, -1/hx**2, -1/hy**2])
+                data[counter:counter+4] = np.array([-1/hy**2, 1/hx**2+2/hy**2, -1/hx**2, -1/hy**2])
                 # data[counter:counter+4] = np.array([-1, 4, -1, -1]) # change
                 right_part[counter_right_part] = f(xaxis[j], yaxis[i]) + phi_L(yaxis[i]) / hx
                 counter_right_part += 1
@@ -121,7 +145,7 @@ def create_matrix():
             elif j == Nx - 1:
                 i_ind[counter:counter+4] = np.repeat(n, 4)
                 j_ind[counter:counter+4] = np.array([to1D(i-1, j), to1D(i, j-1), n, to1D(i+1, j)])
-                data[counter:counter+4] = np.array([-1/hy**2, -1/hx**2, 2/hx**2+2/hy**2, -1/hy**2])
+                data[counter:counter+4] = np.array([-1/hy**2, -1/hx**2, 1/hx**2+2/hy**2, -1/hy**2])
                 # data[counter:counter+4] = np.array([-1, -1, 4, -1]) # change
                 right_part[counter_right_part] = f(xaxis[j], yaxis[i]) + phi_R(yaxis[i]) / hx
                 counter_right_part += 1
@@ -139,7 +163,7 @@ def create_matrix():
     #print("n: ", n)
     i_ind[counter:counter + 3] = np.repeat(n, 3)
     j_ind[counter:counter + 3] = np.array([to1D(Ny-2, 0), n, to1D(Ny-1, 1)])
-    data[counter:counter+3] = np.array([-1/hy**2, 2/hx**2+2/hy**2, -1/hx**2])
+    data[counter:counter+3] = np.array([-1/hy**2, 1/hx**2+1/hy**2, -1/hx**2])
     # data[counter:counter+3] = np.array([-1, 4, -1])  # change
     right_part[counter_right_part] = f(xaxis[0], yaxis[Ny-1]) + phi_L(yaxis[Ny-1]) / hx + phi_T(xaxis[0]) / hy
     counter_right_part += 1
@@ -150,7 +174,7 @@ def create_matrix():
         #print("n: ", n)
         i_ind[counter:counter + 4] = np.repeat(n, 4)
         j_ind[counter:counter + 4] = np.array([to1D(Ny-2, i), to1D(Ny-1, i-1), n, to1D(Ny-1, i+1)])
-        data[counter:counter+4] = np.array([-1/hy**2, -1/hx**2, 2/hx**2+2/hy**2, -1/hx**2])
+        data[counter:counter+4] = np.array([-1/hy**2, -1/hx**2, 2/hx**2+1/hy**2, -1/hx**2])
         # data[counter:counter+4] = np.array([-1, -1, 4, -1])  # change
         right_part[counter_right_part] = f(xaxis[i], yaxis[Ny-1]) + phi_T(xaxis[i]) / hy
         counter_right_part += 1
@@ -160,7 +184,7 @@ def create_matrix():
     # print("N_end: ", n)
     i_ind[counter:counter + 3] = np.repeat(n, 3)
     j_ind[counter:counter + 3] = np.array([to1D(Ny-2, Nx-1), to1D(Ny-1, Nx-2), n])
-    data[counter:counter+3] = np.array([-1/hy**2, -1/hx**2, 2/hx**2+2/hy**2])
+    data[counter:counter+3] = np.array([-1/hy**2, -1/hx**2, 1/hx**2+1/hy**2])
     # data[counter:counter + 3] = np.array([-1, -1, 4])  # change
     right_part[counter_right_part] = f(xaxis[Nx-1], yaxis[Ny-1]) + phi_T(xaxis[Nx-1]) / hy + phi_R(yaxis[Ny-1]) / hx
     counter_right_part += 1
