@@ -13,46 +13,47 @@ Ny = int(100)
 hx = (r - l) / Nx
 hy = (r - l) / Ny
 
-xaxis = np.linspace(l, r, Nx)
-yaxis = np.linspace(l, r, Ny)
+xaxis = np.linspace(l+hx/2, r-hx/2, Nx)
+yaxis = np.linspace(l+hy/2, r-hy/2, Ny)
 
 steps_per_save = 1000
 
 def f(x, y):
     #return 0*x + 0*y
     #return -4
-    return -8*x
-    # return 4 + 128 * np.cos(8 * x + 3 * y) dont converge
+    #return -8*x
+    return 2 - 6*y + 73 * np.cos(-8*x - 3*y)
 
 def phi_L(y):
     #return -1
     #return 0
-    return -y**2
-    #return 8 * np.sin(3*y)
+    #return -y**2
+    return -8 * np.sin(-3*y)
 
 def phi_R(y):
     #return 1
     #return 2
-    return 3 + y**2
-    #return -2 - 8*np.sin(8 + 3*y)
+    #return 3 + y**2
+    return -2 + 8*np.sin(-8 - 3*y)
 
 def phi_B(x):
     #return -1
     #return 0
-    return -x**3
-    #return 3 * np.sin(8*x)
+    #return -x**3
+    return -3 * np.sin(-8*x)
 
 def phi_T(x):
     #return 1
     #return 2
-    return x**3 + 2*x
-    #return 3 - 3 * np.sin(8*x + 3)
+    #return x**3 + 2*x
+    return 3 + 3 * np.sin(-8*x - 3)
 
 def exact(x, y, delta):
     #return x + y
     #return x**2 + y**2 - delta
-    return x**3 + x * y**2 - delta
-    #return -x**2 + y**3 + np.cos(-8*x - 3*y) - delta
+    #return x**3 + x * y**2 - delta
+    return -x**2 + y**3 + np.cos(-8*x - 3*y) - delta
+
 
 def to2D(n):
     return int(n / Nx), int(n % Nx)
@@ -60,7 +61,7 @@ def to2D(n):
 def to1D(i, j):
     return int(Nx * i + j)
 
-def solve_scipy(eps=1e-3):
+def solve_scipy():
     print("matrix creation start")
     matrix, right_part = create_matrix()
     print("matrix creation end")
@@ -71,14 +72,14 @@ def solve_scipy(eps=1e-3):
 def solve(eps=1e-3):
     print("matrix creation start")
     matrix, right_part = create_matrix()
-    # matrix[0, 0] += 1
-    # matrix += eye(Nx*Ny, format='csr')
+    print("MEAN: ", np.mean(right_part))
+    print("SUM: ", np.sum(right_part))
+    right_part -= np.mean(right_part)
+    print("MEAN: ", np.mean(right_part))
+    print("SUM: ", np.sum(right_part))
     print("matrix creation end")
 
-    # rng = np.random.default_rng()
     u = np.ones(Nx * Ny)
-    # u = rng.random(Nx * Ny)
-    # grid_x, grid_y = np.meshgrid(xaxis, yaxis)
     curr_eps = 1
     m = int(0)
     while curr_eps > eps:

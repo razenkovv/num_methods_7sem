@@ -85,9 +85,7 @@ def animation(param="save"):
 
 
 def plot_relative_error(cmap, savepath, delta, calc_sol, title):
-    x = np.linspace(t.l, t.r, t.Nx)
-    y = np.linspace(t.l, t.r, t.Ny)
-    xv, yv = np.meshgrid(x, y)
+    xv, yv = np.meshgrid(t.xaxis, t.yaxis)
     grid_kws = {'width_ratios': (0.9, 0.05), 'wspace': 0.2}
     fig, (ax, cax) = plt.subplots(1, 2, gridspec_kw=grid_kws, figsize=(6, 6))
     x_tick_n = 5
@@ -106,9 +104,7 @@ def plot_relative_error(cmap, savepath, delta, calc_sol, title):
 
 
 def plot_relative_diff_my_scipy(cmap, savepath, u, u_sc):
-    x = np.linspace(t.l, t.r, t.Nx)
-    y = np.linspace(t.l, t.r, t.Ny)
-    xv, yv = np.meshgrid(x, y)
+    xv, yv = np.meshgrid(t.xaxis, t.yaxis)
     grid_kws = {'width_ratios': (0.9, 0.05), 'wspace': 0.2}
     fig, (ax, cax) = plt.subplots(1, 2, gridspec_kw=grid_kws, figsize=(6, 6))
     x_tick_n = 5
@@ -119,15 +115,13 @@ def plot_relative_diff_my_scipy(cmap, savepath, u, u_sc):
     ax.xaxis.tick_top()
     ax.set_yticks(np.linspace(0, t.Ny, y_tick_n))
     ax.set_yticklabels(f'{c:.1f}' for c in np.linspace(t.l, t.r, y_tick_n))
-    ax.set_title("diff_my_scipy.")
+    ax.set_title("rel_diff_my_scipy.")
     if not os.path.exists('images'):
         os.mkdir('images')
     fig.savefig(f'images/{savepath}')
 
 def plot_smth(cmap, savepath, u, title):
-    x = np.linspace(t.l, t.r, t.Nx)
-    y = np.linspace(t.l, t.r, t.Ny)
-    xv, yv = np.meshgrid(x, y)
+    xv, yv = np.meshgrid(t.xaxis, t.yaxis)
     grid_kws = {'width_ratios': (0.9, 0.05), 'wspace': 0.2}
     fig, (ax, cax) = plt.subplots(1, 2, gridspec_kw=grid_kws, figsize=(6, 6))
     x_tick_n = 5
@@ -142,3 +136,39 @@ def plot_smth(cmap, savepath, u, title):
     if not os.path.exists('images'):
         os.mkdir('images')
     fig.savefig(f'images/{savepath}')
+
+
+def plot_error(cmap, savepath, delta, calc_sol, title):
+    xv, yv = np.meshgrid(t.xaxis, t.yaxis)
+    grid_kws = {'width_ratios': (0.9, 0.05), 'wspace': 0.2}
+    fig, (ax, cax) = plt.subplots(1, 2, gridspec_kw=grid_kws, figsize=(6, 6))
+    x_tick_n = 5
+    y_tick_n = 5
+    exact = t.exact(xv, yv, delta)
+    sns.heatmap(np.abs(exact - calc_sol), ax=ax, cbar=True, cbar_ax=cax, cmap=cmap)  # , vmin=2.5, vmax=3.5)
+    ax.set_xticks(np.linspace(0, t.Nx, x_tick_n))
+    ax.set_xticklabels(f'{c:.1f}' for c in np.linspace(t.l, t.r, x_tick_n))
+    ax.xaxis.tick_top()
+    ax.set_yticks(np.linspace(0, t.Ny, y_tick_n))
+    ax.set_yticklabels(f'{c:.1f}' for c in np.linspace(t.l, t.r, y_tick_n))
+    ax.set_title(title)
+    if not os.path.exists('images'):
+        os.mkdir('images')
+    fig.savefig(f'images/{savepath}')
+
+def plot_diff_my_scipy(cmap, savepath, u, u_sc):
+        xv, yv = np.meshgrid(t.xaxis, t.yaxis)
+        grid_kws = {'width_ratios': (0.9, 0.05), 'wspace': 0.2}
+        fig, (ax, cax) = plt.subplots(1, 2, gridspec_kw=grid_kws, figsize=(6, 6))
+        x_tick_n = 5
+        y_tick_n = 5
+        sns.heatmap(np.abs(u - u_sc), ax=ax, cbar=True, cbar_ax=cax, cmap=cmap)  # , vmin=0.0, vmax=2.0)
+        ax.set_xticks(np.linspace(0, t.Nx, x_tick_n))
+        ax.set_xticklabels(f'{c:.1f}' for c in np.linspace(t.l, t.r, x_tick_n))
+        ax.xaxis.tick_top()
+        ax.set_yticks(np.linspace(0, t.Ny, y_tick_n))
+        ax.set_yticklabels(f'{c:.1f}' for c in np.linspace(t.l, t.r, y_tick_n))
+        ax.set_title("diff_my_scipy.")
+        if not os.path.exists('images'):
+            os.mkdir('images')
+        fig.savefig(f'images/{savepath}')
