@@ -8,6 +8,7 @@ import numpy as np
 import task as t
 import plot as p
 
+
 if os.path.exists('data/'):
     shutil.rmtree('data/')
 os.mkdir('data/')
